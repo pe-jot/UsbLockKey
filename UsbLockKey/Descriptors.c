@@ -45,10 +45,62 @@
  */
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 {
-	/* Use the HID class driver's standard Keyboard report.
-	 *   Max simultaneous keys: 6
-	 */
-	HID_DESCRIPTOR_KEYBOARD(6)
+	HID_RI_USAGE_PAGE(8, 0x01),	/* Generic Desktop */
+	HID_RI_USAGE(8, 0x06),	/* Keyboard */
+	HID_RI_COLLECTION(8, 0x01), /* Application */
+		HID_RI_USAGE_PAGE(8, 0x07),	/* Key Codes */
+		HID_RI_USAGE_MINIMUM(8, 0xE0),	/* Keyboard Left Control */
+		HID_RI_USAGE_MAXIMUM(8, 0xE7),	/* Keyboard Right GUI */
+		HID_RI_LOGICAL_MINIMUM(8, 0x00),
+		HID_RI_LOGICAL_MAXIMUM(8, 0x01),
+		HID_RI_REPORT_SIZE(8, 0x01),
+		HID_RI_REPORT_COUNT(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+		HID_RI_REPORT_COUNT(8, 0x01),
+		HID_RI_REPORT_SIZE(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_CONSTANT),
+		
+		//HID_RI_USAGE_PAGE(8, 0x08),	/* LEDs */
+		//HID_RI_USAGE_MINIMUM(8, 0x01), /* Num Lock */
+		//HID_RI_USAGE_MAXIMUM(8, 0x05), /* Kana */
+		//HID_RI_REPORT_COUNT(8, 0x05),
+		//HID_RI_REPORT_SIZE(8, 0x01),
+		//HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+		//HID_RI_REPORT_COUNT(8, 0x01),
+		//HID_RI_REPORT_SIZE(8, 0x03),
+		//HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
+		//HID_RI_LOGICAL_MINIMUM(8, 0x00),
+		//HID_RI_LOGICAL_MAXIMUM(16, 0xFF),
+		
+		//HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
+		//HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
+		//HID_RI_USAGE_MAXIMUM(8, 0xFF),
+		//HID_RI_REPORT_COUNT(8, 6),	/* Max simultaneous keys: 6 */
+		//HID_RI_REPORT_SIZE(8, 0x08),
+		//HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+		
+		HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
+		HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
+		HID_RI_USAGE_MAXIMUM(8, 0xFF),
+		HID_RI_REPORT_COUNT(8, 5),	/* Max simultaneous keys: 3 */
+		HID_RI_REPORT_SIZE(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+		
+		//HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Page */
+		//HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
+		//HID_RI_USAGE_MAXIMUM(8, 0xFF),
+		//HID_RI_REPORT_COUNT(8, 1),	/* Max simultaneous keys: 1 */
+		//HID_RI_REPORT_SIZE(8, 0x08),
+		//HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+		
+		HID_RI_USAGE_PAGE(8, 0x01), /* System Control */
+		HID_RI_USAGE_MINIMUM(8, 0x00),
+		HID_RI_USAGE_MAXIMUM(8, 0xFF),
+		HID_RI_REPORT_COUNT(8, 1),	/* Max simultaneous keys: 1 */
+		HID_RI_REPORT_SIZE(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+		
+	HID_RI_END_COLLECTION(0),
 };
 
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
@@ -67,9 +119,9 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-	.VendorID               = 0x046D,
-	.ProductID              = 0xC312,
-	.ReleaseNumber          = VERSION_BCD(1,0,1),
+	.VendorID               = 0x03EB,
+	.ProductID              = 0x206E,
+	.ReleaseNumber          = VERSION_BCD(1,0,2),
 
 	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
 	.ProductStrIndex        = STRING_ID_Product,
@@ -111,7 +163,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.Class                  = HID_CSCP_HIDClass,
 			.SubClass               = HID_CSCP_BootSubclass,
-			.Protocol               = HID_CSCP_KeyboardBootProtocol,
+			.Protocol               = HID_CSCP_NonBootProtocol,
 
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
