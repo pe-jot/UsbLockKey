@@ -22,8 +22,7 @@
 	#include <LUFA/Drivers/USB/USB.h>
 	#include <LUFA/Platform/Platform.h>
 	
-	
-	#define HID_KEY_NONE			0x00
+
 	#define TIMER_PRELOAD_200MS		0xF3CB
 
 	#define LED_RX_ON		PORTB |=  (1 << PB0)
@@ -31,20 +30,30 @@
 	#define LED_RX_TOGGLE	PORTB ^=  (1 << PB0)
 	#define LED_TX_ON		PORTD |=  (1 << PD5)
 	#define LED_TX_OFF		PORTD &= ~(1 << PD5)
+	#define LED_TX_TOGGLE	PORTD ^=  (1 << PD5)
 	#define LED_ON			PORTC |=  (1 << PC7)
 	#define LED_OFF			PORTC &= ~(1 << PC7)
+	#define LED_TOGGLE		PORTC ^=  (1 << PC7)
 
 	#define DI2				(!(PIND & (1 << PD1)))	/* Lock */
 	#define DI3				(!(PIND & (1 << PD0)))	/* Sleep */
+	#define DI4				(!(PIND & (1 << PD4)))	/* Pause */
 	#define DI11			(!(PINB & (1 << PB7)))	/* Bootloader */
 
-	#define DI4				(!(PIND & (1 << PD4)))
-	#define DI5				(!(PINC & (1 << PC6)))
+	#define DI5				(!(PINC & (1 << PC6)))	/* Test */
 	#define DI6				(!(PIND & (1 << PD7)))
 	#define DI7				(!(PINE & (1 << PE6)))
 	#define DI8				(!(PINB & (1 << PB4)))
 	#define DI9				(!(PINB & (1 << PB5)))
 	#define DI10			(!(PINB & (1 << PB6)))
+	
+	
+	typedef struct 
+	{
+		uint8_t Lock;
+		uint8_t Pause;
+		uint8_t Sleep;
+	} Command_t;
 	
 
 	void EVENT_USB_Device_Connect (void);

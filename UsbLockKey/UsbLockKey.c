@@ -11,6 +11,9 @@
 
 /* Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
+static uint8_t PrevMediaControlHIDReportBuffer[sizeof(USB_MediaReport_Data_t)];
+static Command_t gCommand;
+
 
 /*  LUFA HID Class driver interface configuration and state information. This structure is
  *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -19,33 +22,54 @@ static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
 USB_ClassInfo_HID_Device_t Keyboard_HID_Interface =
 {
 	.Config =
+	{
+		.InterfaceNumber              = INTERFACE_ID_Keyboard,
+		.ReportINEndpoint             =
 		{
-			.InterfaceNumber              = INTERFACE_ID_Keyboard,
-			.ReportINEndpoint             =
-				{
-					.Address              = KEYBOARD_EPADDR,
-					.Size                 = KEYBOARD_EPSIZE,
-					.Banks                = 1,
-				},
-			.PrevReportINBuffer           = PrevKeyboardHIDReportBuffer,
-			.PrevReportINBufferSize       = sizeof(PrevKeyboardHIDReportBuffer),
+			.Address              = KEYBOARD_EPADDR,
+			.Size                 = HID_EPSIZE,
+			.Banks                = 1,
 		},
+		.PrevReportINBuffer           = PrevKeyboardHIDReportBuffer,
+		.PrevReportINBufferSize       = sizeof(PrevKeyboardHIDReportBuffer),
+	},
+};
+
+USB_ClassInfo_HID_Device_t MediaControl_HID_Interface =
+{
+	.Config =
+	{
+		.InterfaceNumber              = INTERFACE_ID_Media,
+		.ReportINEndpoint             =
+		{
+			.Address              = MEDIACONTROL_HID_EPADDR,
+			.Size                 = HID_EPSIZE,
+			.Banks                = 1,
+		},
+		.PrevReportINBuffer           = PrevMediaControlHIDReportBuffer,
+		.PrevReportINBufferSize       = sizeof(PrevMediaControlHIDReportBuffer),
+	},
 };
 
 
 /* Event handler for the library USB Connection event. */
-void EVENT_USB_Device_Connect(void) { }
+void EVENT_USB_Device_Connect(void) 
+{}
 
 
 /* Event handler for the library USB Disconnection event. */
-void EVENT_USB_Device_Disconnect(void) { }
+void EVENT_USB_Device_Disconnect(void)
+{}
 
 
 /* Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
 	bool ConfigSuccess = true;
+	
 	ConfigSuccess &= HID_Device_ConfigureEndpoints(&Keyboard_HID_Interface);
+	ConfigSuccess &= HID_Device_ConfigureEndpoints(&MediaControl_HID_Interface);
+	
 	USB_Device_EnableSOFEvents();
 }
 
@@ -54,6 +78,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 void EVENT_USB_Device_ControlRequest(void)
 {
 	HID_Device_ProcessControlRequest(&Keyboard_HID_Interface);
+	HID_Device_ProcessControlRequest(&MediaControl_HID_Interface);
 }
 
 
@@ -61,6 +86,7 @@ void EVENT_USB_Device_ControlRequest(void)
 void EVENT_USB_Device_StartOfFrame(void)
 {
 	HID_Device_MillisecondElapsed(&Keyboard_HID_Interface);
+	HID_Device_MillisecondElapsed(&MediaControl_HID_Interface);
 }
 
 
@@ -80,35 +106,52 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          void* ReportData,
                                          uint16_t* const ReportSize)
 {
-	USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
+	/* Determine which interface must have its report generated */
+	if (HIDInterfaceInfo == &Keyboard_HID_Interface)
+	{
+		USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
+		
+		/* Windows Lock */
+		if (gCommand.Lock)
+		{
+			gCommand.Lock = 0;
+			KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
+			KeyboardReport->KeyCode[0] = HID_KEYBOARD_SC_L;
+		}
+		else
+		{
+			KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_NONE;
+			KeyboardReport->KeyCode[0] = HID_KEY_NONE;
+		}
+			
+		/* System Sleep */
+		#define HID_KEYBOARD_SC_SYSTEM_SLEEP 0x82	/* Maybe 0xA8 (System Hibernate) instead of 0x82 ?? */
+		if (gCommand.Sleep)
+		{
+			gCommand.Sleep = 0;
+			KeyboardReport->KeyCode[5] = HID_KEYBOARD_SC_SYSTEM_SLEEP;
+		}
+		else
+		{
+			KeyboardReport->KeyCode[5] = HID_KEY_NONE;
+		}
+			
+		*ReportSize = sizeof(USB_KeyboardReport_Data_t);
+	}
+	else if (HIDInterfaceInfo == &MediaControl_HID_Interface)
+	{
+		USB_MediaReport_Data_t* MediaReport = (USB_MediaReport_Data_t*)ReportData;
+		
+		/* Music Stop */
+		if (gCommand.Pause)
+		{
+			gCommand.Pause = 0;
+			MediaReport->PlayPause = 1;
+		}
 
-	if (DI2)
-	{
-		KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_LEFTGUI;
-		KeyboardReport->KeyCode[0] = HID_KEYBOARD_SC_R;
-	}
-	else if (DI3)
-	{
-		// Maybe 0xA8 (System Hibernate) instead of 0x82 ??
-		#define HID_KEYBOARD_SC_SYSTEM_SLEEP 0x82
-		KeyboardReport->KeyCode[5] = HID_KEYBOARD_SC_SYSTEM_SLEEP;
-	}
-	else if (DI4)
-	{
-		KeyboardReport->KeyCode[3] = 0x00;
-		KeyboardReport->KeyCode[4] = 0xE2;
-	}
-	else
-	{
-		KeyboardReport->KeyCode[0] = HID_KEY_NONE;
-		KeyboardReport->KeyCode[3] = HID_KEY_NONE;
-		KeyboardReport->KeyCode[4] = HID_KEY_NONE;
-		KeyboardReport->KeyCode[5] = HID_KEY_NONE;
+		*ReportSize = sizeof(USB_MediaReport_Data_t);
 	}
 
-	*ReportID = 0;
-	*ReportSize = sizeof(USB_KeyboardReport_Data_t);
-	
 	return false;
 }
 
@@ -133,40 +176,38 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 /***********************************************************************************************************************************************************************/
 
 
-#define MAGIC_BOOT_KEY	0xDEADBEEF
-uint32_t Boot_Key ATTR_NO_INIT;	// Mark this variable to be uninitialized when booting
-
-void Bootloader_Jump_Check(void) ATTR_INIT_SECTION(3);
-void Bootloader_Jump_Check(void)
-{
-	// If the reset source was the bootloader and the key is correct, clear it and jump to the bootloader
-	if ((MCUSR & (1 << WDRF)) && (Boot_Key == MAGIC_BOOT_KEY))
-	{
-		Boot_Key = 0;
-		// Bootloader section starts at address 0x3800 (as configured in fuses)
-		// BOOTRST fuse is unprogrammed to directly start into application
-		asm volatile ("jmp 0x3800");
-	}
-}
-
-
-/***********************************************************************************************************************************************************************/
-
-
 ISR(TIMER1_OVF_vect)
 {
-	static unsigned char ucButtonHistory = 0;
+	static unsigned char ucDi2History = 0;
+	static unsigned char ucDi3History = 0;
+	static unsigned char ucDi4History = 0;
 	
 	TCNT1 = TIMER_PRELOAD_200MS;
 	char tempSREG = SREG;
 	
-	ucButtonHistory <<= 1;
-	ucButtonHistory |= DI5;
+	ucDi2History <<= 1;
+	ucDi2History |= DI2;
+	ucDi3History <<= 1;
+	ucDi3History |= DI3;
+	ucDi4History <<= 1;
+	ucDi4History |= DI4;
 	
-	if ((ucButtonHistory & 0b00111111) == 0b00111100)
+	if ((ucDi2History & 0b00000011) == 0b00000010)
 	{
-		LED_RX_TOGGLE;
-		ucButtonHistory = 0;
+		gCommand.Lock = 1;
+		ucDi2History = 0;
+	}
+	
+	if ((ucDi3History & 0b00000011) == 0b00000010)
+	{
+		gCommand.Sleep = 1;
+		ucDi3History = 0;
+	}
+	
+	if ((ucDi4History & 0b00000011) == 0b00000010)
+	{
+		gCommand.Pause = 1;
+		ucDi4History = 0;
 	}
 	
 	SREG = tempSREG;
@@ -177,7 +218,9 @@ ISR(TIMER1_OVF_vect)
 
 
 int main(void)
-{	
+{
+	memset(&gCommand, 0, sizeof(Command_t));
+	
 	// Configure I/O Ports
     DDRB |= (1<<0);
     PORTB = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7);
@@ -186,10 +229,17 @@ int main(void)
     DDRD |= (1<<5) | (1<<6);
     PORTD = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<7);
 	
+	// Start Bootloader if DI11 is pressed during reset OR DI2 is pressed during power on
+	if ( ((MCUSR & (1 << EXTRF)) && DI11) || ((MCUSR & (1 << PORF)) && DI2) )
+	{
+		LED_ON;
+		// Bootloader section starts at address 0x3800 (as configured in fuses)
+		// BOOTRST fuse is unprogrammed to directly start into application
+		asm volatile ("jmp 0x3800");
+	}
+	
 	// Configure Timer 1
-	//TCCR1A = 0x00; // Default value
 	TCCR1B = 0x05;	// fosc / 1024
-	//TCCR1C = 0x00; // Default value
 	TCNT1 = TIMER_PRELOAD_200MS;
 	TIMSK1 = (1 << TOIE1);	// Timer1 Overflow Interrupt
 
@@ -206,26 +256,7 @@ int main(void)
     while(1)
     {	
 		HID_Device_USBTask(&Keyboard_HID_Interface);
+		HID_Device_USBTask(&MediaControl_HID_Interface);
 		USB_USBTask();
-		
-		// Back to bootloader
-		if (DI11)
-		{
-			LED_ON;
-			
-			// If USB is used, detach from the bus and reset it
-			USB_Disable();
-			
-			// Disable all interrupts
-			cli();
-			
-			// Wait two seconds for the USB detachment to register on the host
-			_delay_ms(2000);
-					
-			// Set the bootloader key to the magic value and force a reset through watchdog
-			Boot_Key = MAGIC_BOOT_KEY;
-			wdt_enable(WDTO_15MS);
-			while(1);
-		}
     }
 }

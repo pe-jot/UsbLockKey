@@ -72,26 +72,12 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 		//HID_RI_LOGICAL_MINIMUM(8, 0x00),
 		//HID_RI_LOGICAL_MAXIMUM(16, 0xFF),
 		
-		//HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
-		//HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
-		//HID_RI_USAGE_MAXIMUM(8, 0xFF),
-		//HID_RI_REPORT_COUNT(8, 6),	/* Max simultaneous keys: 6 */
-		//HID_RI_REPORT_SIZE(8, 0x08),
-		//HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
-		
 		HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
 		HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
 		HID_RI_USAGE_MAXIMUM(8, 0xFF),
 		HID_RI_REPORT_COUNT(8, 5),	/* Max simultaneous keys: 3 */
 		HID_RI_REPORT_SIZE(8, 0x08),
 		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
-		
-		//HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Page */
-		//HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
-		//HID_RI_USAGE_MAXIMUM(8, 0xFF),
-		//HID_RI_REPORT_COUNT(8, 1),	/* Max simultaneous keys: 1 */
-		//HID_RI_REPORT_SIZE(8, 0x08),
-		//HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
 		
 		HID_RI_USAGE_PAGE(8, 0x01), /* System Control */
 		HID_RI_USAGE_MINIMUM(8, 0x00),
@@ -100,6 +86,32 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 		HID_RI_REPORT_SIZE(8, 0x08),
 		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
 		
+	HID_RI_END_COLLECTION(0),
+};
+
+const USB_Descriptor_HIDReport_Datatype_t PROGMEM MediaReport[] =
+{
+	HID_RI_USAGE_PAGE(8, 0x0C), /* Consumer Page */
+	HID_RI_USAGE(8, 0x01), /* Consumer Controls */
+	HID_RI_COLLECTION(8, 0x01), /* Application */
+		HID_RI_USAGE(8, 0xB0), /* Play */
+		HID_RI_USAGE(8, 0xB1), /* Pause */
+		HID_RI_USAGE(8, 0xB3), /* Fast Forward */
+		HID_RI_USAGE(8, 0xB4), /* Rewind */
+		HID_RI_USAGE(8, 0xB5), /* Next Track */
+		HID_RI_USAGE(8, 0xB6), /* Previous Track */
+		HID_RI_USAGE(8, 0xB7), /* Stop */
+		HID_RI_USAGE(8, 0xCD), /* Play/Pause (toggle) */
+		HID_RI_USAGE(8, 0xE2), /* Mute */
+		HID_RI_USAGE(8, 0xE9), /* Volume Up */
+		HID_RI_USAGE(8, 0xEA), /* Volume Down */
+		HID_RI_REPORT_SIZE(8, 0x01),
+		HID_RI_REPORT_COUNT(8, 0x0B),
+		HID_RI_LOGICAL_MINIMUM(8, 0),
+		HID_RI_LOGICAL_MAXIMUM(8, 1),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
+		HID_RI_REPORT_COUNT(8, 0x05),
+		HID_RI_INPUT(8, HID_IOF_CONSTANT),
 	HID_RI_END_COLLECTION(0),
 };
 
@@ -142,17 +154,17 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
 
 			.TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-			.TotalInterfaces        = 1,
+			.TotalInterfaces        = 2,
 
 			.ConfigurationNumber    = 1,
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
 
 			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
 
-			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
+			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(50)
 		},
 
-	.HID_Interface =
+	.HID1_KeyboardInterface =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
@@ -168,7 +180,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
 
-	.HID_KeyboardHID =
+	.HID1_KeyboardHID =
 		{
 			.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
 
@@ -179,15 +191,52 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.HIDReportLength        = sizeof(KeyboardReport)
 		},
 
-	.HID_ReportINEndpoint =
+	.HID1_ReportINEndpoint =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
 			.EndpointAddress        = KEYBOARD_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = KEYBOARD_EPSIZE,
+			.EndpointSize           = HID_EPSIZE,
 			.PollingIntervalMS      = 0x05
 		},
+		
+	.HID2_MediaInterface =
+	{
+		.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+
+		.InterfaceNumber        = INTERFACE_ID_Media,
+		.AlternateSetting       = 0x00,
+
+		.TotalEndpoints         = 1,
+
+		.Class                  = HID_CSCP_HIDClass,
+		.SubClass               = HID_CSCP_BootSubclass,
+		.Protocol               = HID_CSCP_NonBootProtocol,
+
+		.InterfaceStrIndex      = NO_DESCRIPTOR
+	},
+
+	.HID2_MediaHID =
+	{
+		.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+
+		.HIDSpec                = VERSION_BCD(1,1,1),
+		.CountryCode            = 0x00,
+		.TotalReportDescriptors = 1,
+		.HIDReportType          = HID_DTYPE_Report,
+		.HIDReportLength        = sizeof(MediaReport)
+	},
+
+	.HID2_ReportINEndpoint =
+	{
+		.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+		.EndpointAddress        = MEDIACONTROL_HID_EPADDR,
+		.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+		.EndpointSize           = HID_EPSIZE,
+		.PollingIntervalMS      = 0x05
+	}
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
@@ -230,10 +279,12 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 			Address = &DeviceDescriptor;
 			Size    = sizeof(USB_Descriptor_Device_t);
 			break;
+			
 		case DTYPE_Configuration:
 			Address = &ConfigurationDescriptor;
 			Size    = sizeof(USB_Descriptor_Configuration_t);
 			break;
+			
 		case DTYPE_String:
 			switch (DescriptorNumber)
 			{
@@ -241,10 +292,12 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 					Address = &LanguageString;
 					Size    = pgm_read_byte(&LanguageString.Header.Size);
 					break;
+					
 				case STRING_ID_Manufacturer:
 					Address = &ManufacturerString;
 					Size    = pgm_read_byte(&ManufacturerString.Header.Size);
 					break;
+					
 				case STRING_ID_Product:
 					Address = &ProductString;
 					Size    = pgm_read_byte(&ProductString.Header.Size);
@@ -252,14 +305,34 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 			}
 
 			break;
+			
 		case HID_DTYPE_HID:
-			Address = &ConfigurationDescriptor.HID_KeyboardHID;
-			Size    = sizeof(USB_HID_Descriptor_HID_t);
-			break;
+			switch (wIndex)
+			{
+				case INTERFACE_ID_Keyboard:
+					Address = &ConfigurationDescriptor.HID1_KeyboardHID;
+					Size    = sizeof(USB_HID_Descriptor_HID_t);
+					break;
+				
+				case INTERFACE_ID_Media:
+					Address = &ConfigurationDescriptor.HID2_MediaHID;
+					Size    = sizeof(USB_HID_Descriptor_HID_t);
+					break;
+			}
+
 		case HID_DTYPE_Report:
-			Address = &KeyboardReport;
-			Size    = sizeof(KeyboardReport);
-			break;
+			switch (wIndex)
+			{
+				case INTERFACE_ID_Keyboard:
+					Address = &KeyboardReport;
+					Size    = sizeof(KeyboardReport);
+					break;
+					
+				case INTERFACE_ID_Media:
+					Address = &MediaReport;
+					Size = sizeof(MediaReport);
+					break;
+			}
 	}
 
 	*DescriptorAddress = Address;
