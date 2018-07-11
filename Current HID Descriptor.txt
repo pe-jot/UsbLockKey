@@ -1,0 +1,124 @@
+HID Descriptor
+Usage Page: 1 (Generic Desktop Controls)
+Usage: 6 (Keyboard)
+Collection 
+	Usage Page: 7 (Keyboard)
+	Usages (224-231): Control Left, Shift Left, Alt Left, GUI Left, Control Right, Shift Right, Alt Right, 
+	GUI Right
+	Logical Minimum: 0
+	Logical Maximum: 1
+	Report Size: 1
+	Report Count: 8
+	Input: 2 (Data,Variable,Absolute,No Wrap,Linear,Preferred State,No Null Position)
+
+	Report Count: 1
+	Report Size: 8
+	Input: 1 (Constant,Array,Absolute,No Wrap,Linear,Preferred State,No Null Position)
+
+	Usage Page: 7 (Keyboard)
+	Usages (0-255): No Event, Keyboard ErrorRollOver, Keyboard POSTfail, Keyboard Error Undefined, A, 
+	B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, 
+	1 and ! (One and Exclamation), 2 and @ (2 and at), 3 and # (3 and Hash), 4 and $ (4 and Dollar Sign), 
+	5 and % (5 and Percent Sign), 6 and ^ (6 and circumflex), 7 and & (Seven and Ampersand), 
+	8 and * (Eight and asterisk), 9 and ( (Nine and Parenthesis Left), 0 and ) (Zero and Parenthesis Right), 
+	Return (Enter), Escape, Delete (Backspace), Tab, Space Bar, - and _ (Minus and underscore), 
+	= and + (Equal and Plus), [ and { (Bracket and Braces Left), ] and } (Bracket and Braces Right), 
+	\ and | (Backslash and Bar), # and ~ (Hash and Tilde, Non-US Keyboard near right shift), 
+	; and : (Semicolon and Colon), Ò‘ and " (Accent Acute and Double Quotes), ` and ~ (Accent Grace and Tilde), 
+	, and < (Comma and Less), . and > (Period and Greater), / and ? (Slash and Question Mark), 
+	Caps Lock, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, Print Screen, 
+	Scroll Lock, Pause, Insert, Home, Page Up, Delete Forward (without Changing Position), 
+	End, Page Down, Right Arrow, Left Arrow, Down Arrow, Up Arrow, Num Lock and Clear, 
+	Keypad / (Division Sign), Keypad * (Multiplication Sign), Keypad - (Subtraction Sign), 
+	Keypad + (Addition Sign), Keypad Enter, Keypad 1 and END, Keypad 2 and Down Arrow, 
+	Keypad 3 and Page Down, Keypad 4 and Left Arrow, Keypad 5 (Tactilei Raised), 
+	Unknown, Keypad 6 and Right Arrow, Keypad 7 and Home, Keypad 8 and Up Arrow, 
+	Keypad 8 and Page Up, Keypad . (decimal delimiter) and Delete, \ and | (Backslash and Bar, UK and Non-US Keyboard near left shift), 
+	Keyboard Application (Windows Key for Win95 or Compose), Power (not a key), 
+	Keypad = (Equal Sign), F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, F23, 
+	F24, Execute, Help, Menu, Select, Stop, Again, Undo, Cut, Copy, Paste, Find, 
+	Mute, Volume Up, Volume Down, Locking Caps Lock, Locking Num Lock, Locking Scroll Lock, 
+	Keypad Comma, Keypad Equal Sign (AS/400), International 1 (PC98), International 2 (PC98), 
+	International 3 (PC98), International 4 (PC98), International 5 (PC98), International 6 (PC98), 
+	International 7 (Toggle Single/Double Byte Mode), International 8, International 9, 
+	LANG 1 (Hangul/English Toggle, Korea), LANG 2 (Hanja Conversion, Korea), LANG 3 (Katakana, Japan), 
+	LANG 4 (Hiragana, Japan), LANG 5 (Zenkaku/Hankaku, Japan), LANG 6, LANG 7, 
+	LANG 8, LANG 9, Alternate Erase, SysReq/Attention, Cancel, Clear, Prior, Return, 
+	Separator, Out, Open, Clear/Again, CrSel/Props, ExSel, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Control Left, Shift Left, Alt Left, GUI Left, Control Right, 
+	Shift Right, Alt Right, GUI Right, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown
+	Report Count: 5
+	Report Size: 8
+	Input: 0 (Data,Array,Absolute,No Wrap,Linear,Preferred State,No Null Position)
+
+	Usage Page: 1 (Generic Desktop Controls)
+	Usages (0-255): Undefined, Pointer, Mouse, Unknown, Joystick, Gamepad, Keyboard, Keypad, Multi-Axis Controller, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Direction-X, Direction-Y, Direction-Z, Rotate-X, 
+	Rotate-Y, Rotate-Z, Slider, Dial, Wheel, Hat Switch, Counted Buffer, Byte Count, 
+	Motion Wakeup, Start, Select, Unknown, Vector-X, Vector-Y, Vector-Z, Vector-X relative Body, 
+	Vector-Y relative Body, Vector-Z relative Body, Vector, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	System Control, System Power Down, System Sleep, System Wake Up, System Context Menu, 
+	System Main Menu, System App Menu, System Menu Help, System Menu Exit, System Menu Select, 
+	System Menu Right, System Menu Left, System Menu Up, System Menu Down, Unknown, 
+	Unknown, Direction Pad Up, Direction Pad Down, Direction Pad Right, Direction Pad Left, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, 
+	Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown, Unknown
+
+	Report Count: 1
+	Report Size: 8
+	Input: 0 (Data,Array,Absolute,No Wrap,Linear,Preferred State,No Null Position)
+End Collection
+
+HID Descriptor
+Usage Page: 12 (Consumer)
+Usage: 1 (Consumer Control)
+Collection 
+	Usage: 176 (Play)
+	Usage: 177 (Pause)
+	Usage: 179 (Fast Forward)
+	Usage: 180 (Rewind)
+	Usage: 181 (Scan Next Track)
+	Usage: 182 (Scan Previous Track)
+	Usage: 183 (Stop)
+	Usage: 205 (Play/Pause)
+	Usage: 226 (Mute)
+	Usage: 233 (Volume Increment)
+	Usage: 234 (Volume Decrement)
+	Report Size: 1
+	Report Count: 11
+	Logical Minimum: 0
+	Logical Maximum: 1
+	Input: 6 (Data,Variable,Relative,No Wrap,Linear,Preferred State,No Null Position)
+
+	Report Count: 5
+	Input: 1 (Constant,Array,Absolute,No Wrap,Linear,Preferred State,No Null Position)
+End Collection
