@@ -25,28 +25,21 @@
 
 	#define TIMER_PRELOAD_200MS		0xF3CB
 
-	#define LED_RX_ON		PORTB |=  (1 << PB0)
-	#define LED_RX_OFF		PORTB &= ~(1 << PB0)
-	#define LED_RX_TOGGLE	PORTB ^=  (1 << PB0)
-	#define LED_TX_ON		PORTD |=  (1 << PD5)
-	#define LED_TX_OFF		PORTD &= ~(1 << PD5)
-	#define LED_TX_TOGGLE	PORTD ^=  (1 << PD5)
-	#define LED_ON			PORTC |=  (1 << PC7)
-	#define LED_OFF			PORTC &= ~(1 << PC7)
-	#define LED_TOGGLE		PORTC ^=  (1 << PC7)
-
-	#define DI2				(!(PIND & (1 << PD1)))	/* Lock */
-	#define DI3				(!(PIND & (1 << PD0)))	/* Sleep */
-	#define DI4				(!(PIND & (1 << PD4)))	/* Pause */
-	#define DI11			(!(PINB & (1 << PB7)))	/* Bootloader */
-
-	#define DI5				(!(PINC & (1 << PC6)))	/* Test */
-	#define DI6				(!(PIND & (1 << PD7)))
-	#define DI7				(!(PINE & (1 << PE6)))
-	#define DI8				(!(PINB & (1 << PB4)))
-	#define DI9				(!(PINB & (1 << PB5)))
-	#define DI10			(!(PINB & (1 << PB6)))
+	// Onboard LEDs seem to be low-side driven
+	#define LED_RX_ON		PORTB &= ~(1 << PB0)
+	#define LED_RX_OFF		PORTB |=  (1 << PB0)
+	#define LED_TX_ON		PORTD &= ~(1 << PD5)
+	#define LED_TX_OFF		PORTD |=  (1 << PD5)
 	
+	#define LED_1_ON		PORTC |=  (1 << PC6)
+	#define LED_1_OFF		PORTC &= ~(1 << PC6)
+	#define LED_2_ON		PORTD |=  (1 << PD4)
+	#define LED_2_OFF		PORTD &= ~(1 << PD4)
+
+	// Inputs have internal pull-up resistor enabled
+	#define S_EMGCY			((PIND & (1 << PD7)) != 0)	// Lock - switch is normally closed
+	#define S1				((PIND & (1 << PD0)) == 0)	// Sleep
+	#define S2				((PIND & (1 << PD1)) == 0)	// Pause
 	
 	typedef struct 
 	{

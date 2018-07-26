@@ -7,7 +7,7 @@
 
 
 #include "UsbLockKey.h"
-
+#include <stdlib.h>
 
 /* Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
@@ -125,7 +125,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 		}
 			
 		/* System Sleep */
-		#define HID_KEYBOARD_SC_SYSTEM_SLEEP 0x82	/* Maybe 0xA8 (System Hibernate) instead of 0x82 ?? */
+		#define HID_KEYBOARD_SC_SYSTEM_SLEEP 0x82
 		if (gCommand.Sleep)
 		{
 			gCommand.Sleep = 0;
@@ -142,7 +142,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	{
 		USB_MediaReport_Data_t* MediaReport = (USB_MediaReport_Data_t*)ReportData;
 		
-		/* Music Stop */
+		/* Music Play/Pause */
 		if (gCommand.Pause)
 		{
 			gCommand.Pause = 0;
@@ -178,36 +178,35 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 
 ISR(TIMER1_OVF_vect)
 {
-	static unsigned char ucDi2History = 0;
-	static unsigned char ucDi3History = 0;
-	static unsigned char ucDi4History = 0;
+	static unsigned char ucSEmgcyHistory = 0;
+	static unsigned char ucS1History = 0;
+	static unsigned char ucS2History = 0;
 	
 	TCNT1 = TIMER_PRELOAD_200MS;
 	char tempSREG = SREG;
 	
-	ucDi2History <<= 1;
-	ucDi2History |= DI2;
-	ucDi3History <<= 1;
-	ucDi3History |= DI3;
-	ucDi4History <<= 1;
-	ucDi4History |= DI4;
+	ucSEmgcyHistory <<= 1;
+	ucSEmgcyHistory |= S_EMGCY;
+	ucS1History <<= 1;
+	ucS1History |= S1;
+	ucS2History <<= 1;
+	ucS2History |= S2;
 	
-	if ((ucDi2History & 0b00000011) == 0b00000010)
+	// React on negative edge of emergency button
+	if ((ucSEmgcyHistory & 0b00000111) == 0b00000110)
 	{
 		gCommand.Lock = 1;
-		ucDi2History = 0;
 	}
 	
-	if ((ucDi3History & 0b00000011) == 0b00000010)
+	// React on positive edge of standard buttons
+	if ((ucS1History & 0b01000111) == 0b00000011)
 	{
 		gCommand.Sleep = 1;
-		ucDi3History = 0;
 	}
 	
-	if ((ucDi4History & 0b00000011) == 0b00000010)
+	if ((ucS2History & 0b00100011) == 0b00000001)
 	{
 		gCommand.Pause = 1;
-		ucDi4History = 0;
 	}
 	
 	SREG = tempSREG;
@@ -222,17 +221,24 @@ int main(void)
 	memset(&gCommand, 0, sizeof(Command_t));
 	
 	// Configure I/O Ports
-    DDRB |= (1<<0);
+    DDRB |= (1<<0); // PB0 = RXLED
     PORTB = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7);
-    DDRC |= (1<<7);
-    PORTC = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6);
-    DDRD |= (1<<5) | (1<<6);
-    PORTD = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<7);
+    DDRC |= (1<<6) | (1<<7); // PC6 = D5 = LED1, PC7 = LED
+    PORTC = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5);
+    DDRD |= (1<<4) | (1<<5); // PD4 = D4 = LED2, PD5 = TXLED
+    PORTD = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<6) | (1<<7);
+	DDRE |= (1<<6);	// PE6 = D7 = GND
 	
-	// Start Bootloader if DI11 is pressed during reset OR DI2 is pressed during power on
-	if ( ((MCUSR & (1 << EXTRF)) && DI11) || ((MCUSR & (1 << PORF)) && DI2) )
+	// Onboard LEDs are low-side driven so we have to drive the pin high to switch them off
+	LED_RX_OFF;
+	LED_TX_OFF;
+	
+	// Start Bootloader if one of the switches is pressed during reset or power on
+	if ( (MCUSR & ((1 << EXTRF) | (1 << PORF)) ) && (S_EMGCY || S1 || S2) )
 	{
-		LED_ON;
+		LED_1_ON;
+		LED_2_ON;
+		
 		// Bootloader section starts at address 0x3800 (as configured in fuses)
 		// BOOTRST fuse is unprogrammed to directly start into application
 		asm volatile ("jmp 0x3800");
@@ -258,5 +264,9 @@ int main(void)
 		HID_Device_USBTask(&Keyboard_HID_Interface);
 		HID_Device_USBTask(&MediaControl_HID_Interface);
 		USB_USBTask();
+		
+		if (S1) LED_1_ON; else LED_1_OFF;
+		if (S2) LED_2_ON; else LED_2_OFF;
+		if (S_EMGCY) LED_RX_ON; else LED_RX_OFF;
     }
 }
