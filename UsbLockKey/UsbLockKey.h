@@ -23,7 +23,8 @@
 	#include <LUFA/Platform/Platform.h>
 	
 
-	#define TIMER_PRELOAD_200MS		0xF3CB
+	#define TIMER_PRELOAD_100MS		0xF9E6
+	
 
 	// Onboard LEDs seem to be low-side driven
 	#define LED_RX_ON		PORTB &= ~(1 << PB0)
@@ -39,12 +40,13 @@
 	// Inputs have internal pull-up resistor enabled
 	#define S_EMGCY			((PIND & (1 << PD7)) != 0)	// Lock - switch is normally closed
 	#define S1				((PIND & (1 << PD0)) == 0)	// Sleep
-	#define S2				((PIND & (1 << PD1)) == 0)	// Pause
+	#define S2				((PIND & (1 << PD1)) == 0)	// Pause / Next
 	
 	typedef struct 
 	{
 		uint8_t Lock;
 		uint8_t Pause;
+		uint8_t Next;
 		uint8_t Sleep;
 	} Command_t;
 	

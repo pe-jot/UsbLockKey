@@ -142,11 +142,17 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	{
 		USB_MediaReport_Data_t* MediaReport = (USB_MediaReport_Data_t*)ReportData;
 		
-		/* Music Play/Pause */
+		/* Music - Play/Pause */
 		if (gCommand.Pause)
 		{
 			gCommand.Pause = 0;
 			MediaReport->PlayPause = 1;
+		}
+		/* Music - Next track */
+		else if (gCommand.Next)
+		{
+			gCommand.Next = 0;
+			MediaReport->NextTrack = 1;
 		}
 
 		*ReportSize = sizeof(USB_MediaReport_Data_t);
@@ -182,7 +188,7 @@ ISR(TIMER1_OVF_vect)
 	static unsigned char ucS1History = 0;
 	static unsigned char ucS2History = 0;
 	
-	TCNT1 = TIMER_PRELOAD_200MS;
+	TCNT1 = TIMER_PRELOAD_100MS;
 	char tempSREG = SREG;
 	
 	ucSEmgcyHistory <<= 1;
@@ -193,20 +199,45 @@ ISR(TIMER1_OVF_vect)
 	ucS2History |= S2;
 	
 	// React on negative edge of emergency button
-	if ((ucSEmgcyHistory & 0b00000111) == 0b00000110)
+	if ((ucSEmgcyHistory & 0b00001111) == 0b00001100)
 	{
 		gCommand.Lock = 1;
+		ucSEmgcyHistory = 0b10000000;
+	}
+	else if (ucSEmgcyHistory == 0)
+	{
+		LED_RX_OFF;
 	}
 	
 	// React on positive edge of standard buttons
-	if ((ucS1History & 0b01000111) == 0b00000011)
+	if ((ucS1History & 0b10001111) == 0b00000111)
 	{
+		LED_1_ON;
 		gCommand.Sleep = 1;
+		ucS1History = 0b10000000;
+	}
+	else if (ucS1History == 0)
+	{
+		LED_1_OFF;
 	}
 	
-	if ((ucS2History & 0b00100011) == 0b00000001)
+	// Double click (2 patterns)
+	if((ucS2History & 0b10000111) == 0b00000101 || (ucS2History & 0b10001111) == 0b00001001)
 	{
+		LED_2_ON;
+		gCommand.Next = 1;
+		ucS2History = 0b10000000;
+	}
+	// Single click
+	else if((ucS2History & 0b10001000) == 0b00001000)    // Single click
+	{
+		LED_2_ON;
 		gCommand.Pause = 1;
+		ucS2History = 0b10000000;
+	}
+	else if (ucS2History == 0)
+	{
+		LED_2_OFF;
 	}
 	
 	SREG = tempSREG;
@@ -246,7 +277,7 @@ int main(void)
 	
 	// Configure Timer 1
 	TCCR1B = 0x05;	// fosc / 1024
-	TCNT1 = TIMER_PRELOAD_200MS;
+	TCNT1 = TIMER_PRELOAD_100MS;
 	TIMSK1 = (1 << TOIE1);	// Timer1 Overflow Interrupt
 
 	// Disable watchdog if enabled by bootloader/fuses
@@ -264,9 +295,5 @@ int main(void)
 		HID_Device_USBTask(&Keyboard_HID_Interface);
 		HID_Device_USBTask(&MediaControl_HID_Interface);
 		USB_USBTask();
-		
-		if (S1) LED_1_ON; else LED_1_OFF;
-		if (S2) LED_2_ON; else LED_2_OFF;
-		if (S_EMGCY) LED_RX_ON; else LED_RX_OFF;
     }
 }
