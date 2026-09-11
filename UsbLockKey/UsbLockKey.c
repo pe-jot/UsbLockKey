@@ -1,11 +1,3 @@
-/*
- * UsbTestKeyboard.c
- *
- * Created: 22.01.2015 11:48:36
- *  Author: janosp
- */ 
-
-
 #include "UsbLockKey.h"
 #include <stdlib.h>
 
