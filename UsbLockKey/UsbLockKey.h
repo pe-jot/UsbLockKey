@@ -1,11 +1,3 @@
-/*
- * UsbLockKey.h
- *
- * Created: 09.07.2018 19:43:06
- *  Author: Philipp
- */ 
-
-
 #ifndef USBLOCKKEY_H_
 #define USBLOCKKEY_H_
 
@@ -21,35 +13,39 @@
 
 	#include <LUFA/Drivers/USB/USB.h>
 	#include <LUFA/Platform/Platform.h>
-	
+
 
 	#define TIMER_PRELOAD_100MS		0xF9E6
-	
 
-	// Onboard LEDs seem to be low-side driven
-	#define LED_RX_ON		PORTB &= ~(1 << PB0)
-	#define LED_RX_OFF		PORTB |=  (1 << PB0)
-	#define LED_TX_ON		PORTD &= ~(1 << PD5)
-	#define LED_TX_OFF		PORTD |=  (1 << PD5)
-	
-	#define LED_1_ON		PORTC |=  (1 << PC6)
-	#define LED_1_OFF		PORTC &= ~(1 << PC6)
-	#define LED_2_ON		PORTD |=  (1 << PD4)
-	#define LED_2_OFF		PORTD &= ~(1 << PD4)
+	#define UNPOPULATED_INPUT		0
+
+	// Onboard LEDs are high-side driven
+	#define LED_RX_ON		PORTB |=  (1 << PB0)
+	#define LED_RX_OFF		PORTB &= ~(1 << PB0)
+	#define LED_TX_ON		PORTD |=  (1 << PD5)
+	#define LED_TX_OFF		PORTD &= ~(1 << PD5)
+	#define LED_ON			PORTC |=  (1 << PC7)
+	#define LED_OFF			PORTC &= ~(1 << PC7)
+
+	#define LED_1_ON
+	#define LED_1_OFF
+	#define LED_2_ON
+	#define LED_2_OFF
 
 	// Inputs have internal pull-up resistor enabled
-	#define S_EMGCY			((PIND & (1 << PD7)) != 0)	// Lock - switch is normally closed
-	#define S1				((PIND & (1 << PD0)) == 0)	// Sleep
-	#define S2				((PIND & (1 << PD1)) == 0)	// Pause / Next
-	
-	typedef struct 
+	#define S_EMGCY			((PIND & (1 << PD7)) == 0)	// Lock (D6)
+	#define S1				(UNPOPULATED_INPUT)			// Sleep
+	#define S2				(UNPOPULATED_INPUT)			// Pause / Next
+
+
+	typedef struct
 	{
 		uint8_t Lock;
 		uint8_t Pause;
 		uint8_t Next;
 		uint8_t Sleep;
 	} Command_t;
-	
+
 
 	void EVENT_USB_Device_Connect (void);
 	void EVENT_USB_Device_Disconnect (void);

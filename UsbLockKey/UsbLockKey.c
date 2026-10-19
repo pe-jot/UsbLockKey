@@ -193,12 +193,13 @@ ISR(TIMER1_OVF_vect)
 	// React on negative edge of emergency button
 	if ((ucSEmgcyHistory & 0b00001111) == 0b00001100)
 	{
+		LED_TX_ON;
 		gCommand.Lock = 1;
 		ucSEmgcyHistory = 0b10000000;
 	}
 	else if (ucSEmgcyHistory == 0)
 	{
-		LED_RX_OFF;
+		LED_TX_OFF;
 	}
 	
 	// React on positive edge of standard buttons
@@ -244,23 +245,18 @@ int main(void)
 	memset(&gCommand, 0, sizeof(Command_t));
 	
 	// Configure I/O Ports
-    DDRB |= (1<<0); // PB0 = RXLED
-    PORTB = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7);
-    DDRC |= (1<<6) | (1<<7); // PC6 = D5 = LED1, PC7 = LED
-    PORTC = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5);
-    DDRD |= (1<<4) | (1<<5); // PD4 = D4 = LED2, PD5 = TXLED
-    PORTD = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<6) | (1<<7);
-	DDRE |= (1<<6);	// PE6 = D7 = GND
-	
-	// Onboard LEDs are low-side driven so we have to drive the pin high to switch them off
-	LED_RX_OFF;
-	LED_TX_OFF;
+	DDRB |= (1<<0); // PB0 = RXLED
+	PORTB = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7);
+	DDRC |= (1<<7); // PC7(IO13) = LED
+	PORTC = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6);
+	DDRD |= (1<<5); // PD5 = TXLED
+	PORTD = (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<6) | (1<<7);
+	DDRE |= (1<<6);	// PE6(D7) = GND
 	
 	// Start Bootloader if one of the switches is pressed during reset or power on
 	if ( (MCUSR & ((1 << EXTRF) | (1 << PORF)) ) && (S_EMGCY || S1 || S2) )
 	{
-		LED_1_ON;
-		LED_2_ON;
+		LED_ON;
 		
 		// Bootloader section starts at address 0x3800 (as configured in fuses)
 		// BOOTRST fuse is unprogrammed to directly start into application
@@ -282,8 +278,8 @@ int main(void)
 	USB_Init();
 	GlobalInterruptEnable();
 	
-    while(1)
-    {	
+	while(1)
+	{
 		HID_Device_USBTask(&Keyboard_HID_Interface);
 		HID_Device_USBTask(&MediaControl_HID_Interface);
 		USB_USBTask();
